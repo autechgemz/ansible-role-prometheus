@@ -1,8 +1,8 @@
 ansible-core>=2.0.0
 ansible-lint
 pytest>=8,<9
-testinfra>=10,<11
+testinfra>=6.0.0
 molecule>=24,<25
-molecule-plugins[docker]>=24,<25
+molecule-plugins[docker]>=22
 ansible-lint>=6,<7
 yamllint>=1,<2

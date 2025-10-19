@@ -1,0 +1,2 @@
+# {{ ansible_managed }}
+{{ prometheus_config_options_merged | to_nice_yaml(indent=2, sort_keys=False) | trim }}

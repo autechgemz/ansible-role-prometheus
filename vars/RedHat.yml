@@ -1,0 +1,62 @@
+---
+
+prometheus_package_name:
+  - golang-github-prometheus
+
+prometheus_service_name: prometheus.service
+
+prometheus_daemon_config_file: '/etc/default/prometheus'
+
+prometheus_daemon_config_default:
+  - '--config.file=/etc/prometheus/prometheus.yml'
+  - '--web.console.templates="/etc/prometheus/consoles'
+  - '--web.console.libraries="/etc/prometheus/console_libraries'
+  - '--storage.tsdb.path=/var/lib/prometheus/metrics2/'
+
+prometheus_config_dir: '/etc/prometheus'
+
+prometheus_config_file: '/etc/prometheus/prometheus.yml'
+
+prometheus_data_dir: '/var/lib/prometheus'
+
+prometheus_user: prometheus
+
+prometheus_group: prometheus
+
+prometheus_config_default:
+  global:
+    scrape_interval:     15s
+    evaluation_interval: 15s
+    external_labels:
+        monitor: 'example'
+  alerting:
+    alertmanagers:
+    - static_configs:
+      - targets: ['localhost:9093']
+  rule_files:
+  scrape_configs:
+    - job_name: 'prometheus'
+      scrape_interval: 5s
+      scrape_timeout: 5s
+      static_configs:
+        - targets: ['localhost:9090']
+    - job_name: node
+      static_configs:
+        - targets: ['localhost:9100']
+
+prometheus_systemd_default: |
+  Unit:
+    Description: 'Monitoring system and time series database'
+    Documentation: 'https://prometheus.io/docs/introduction/overview/ man:prometheus(1)'
+    Wants: network-online.target
+    After: [ network-online.target, time-sync.target ]
+  Service:
+    Restart: on-failure
+    User: prometheus
+    EnvironmentFile: /etc/default/prometheus
+    ExecStart: /usr/bin/prometheus $ARGS
+    ExecReload: /bin/kill -HUP $MAINPID
+    TimeoutStopSec: 20s
+    SendSIGKILL: 'no'
+  Install:
+    WantedBy: multi-user.target

@@ -1,0 +1,26 @@
+---
+
+- name: Prometheus playbook
+  when: ansible_system == 'Linux'
+  tags:
+    - prometheus_config
+    - prometheus_install
+    - prometheus_service
+    - prometheus
+  block:
+    - name: Include os_family and disributions dependency variables
+      ansible.builtin.include_vars: "{{ item }}"
+      loop:
+        - "{{ ansible_os_family }}/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_os_family }}.yml"
+    - name: Installation tasks
+      ansible.builtin.import_tasks: install.yml
+    - name: Configration tasks
+      ansible.builtin.import_tasks: config.yml
+    - name: Service tasks
+      ansible.builtin.import_tasks: service.yml
+  rescue:
+    - name: Print Error
+      ansible.builtin.debug:
+        msg: "Unsupport platform or error occurred due to some reason."
+      failed_when: true

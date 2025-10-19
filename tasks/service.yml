@@ -1,0 +1,51 @@
+---
+
+- name: Service tasks
+  become: true
+  tags:
+    - prometheus_service
+    - prometheus
+  block:
+
+    - name: Load systemd default options 
+      ansible.builtin.set_fact:
+        prometheus_systemd_default_parsed: "{{ prometheus_systemd_default | from_yaml }}"
+
+    - name: Merge systemd options
+      ansible.builtin.set_fact:
+        prometheus_systemd_options_merged: >-
+          {{ 
+            prometheus_systemd_default_parsed
+            | combine(
+              { 'Service': {
+                  'ExecStart': ('/opt/prometheus/prometheus $ARGS' if prometheus_install_source == 'binary' else '/usr/bin/prometheus $ARGS')
+              }},
+              recursive=True
+              )
+            | combine(prometheus_systemd_options, recursive=True)
+          }}
+
+    - name: Debug variables
+      when: prometheus_debug | bool
+      ansible.builtin.include_tasks: debug/service.yml
+
+    - name: Manage prometheus systemd unit
+      when:
+        - (prometheus_systemd_options is defined and prometheus_systemd_options | length > 0)
+          or prometheus_install_source == 'binary'
+      ansible.builtin.template:
+        src: prometheus.service.j2
+        dest: "/etc/systemd/system/{{ prometheus_service_name }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Reload systemd daemon
+        - Restart prometheus
+
+    - name: Manage prometheus service
+      ansible.builtin.service:
+        name: "{{ prometheus_service_name }}"
+        state: "{{ prometheus_service_ensure }}"
+        enabled: "{{ prometheus_service_enable }}"
+      when: not ansible_check_mode

@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% if prometheus_daemon_config_merged is defined and prometheus_daemon_config_merged is iterable %}
+ARGS={{ '"' }}{{ prometheus_daemon_config_merged | join(" \\\n") }}{{ '"' }}
+{% endif %}

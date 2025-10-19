@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+{% if prometheus_systemd_options_merged is not mapping -%} 
+{{ __not_defined__ | mandatory(
+  'prometheus_systemd_options_merged must be a mapping, got ' ~ (prometheus_systemd_options_merged | type_debug)
+) }}
+{%- endif %}
+{% for keys, values in prometheus_systemd_options_merged.items() %}
+{%   if not values %}
+{{ '[' }}{{ keys }}{{ ']' }}
+{%   else %}
+{{ '[' }}{{ keys }}{{ ']' }}
+{%     for key, value in values.items() %}
+{{ key }} = {{ value }}
+{%     endfor %}
+{%   endif %}
+{% endfor %}

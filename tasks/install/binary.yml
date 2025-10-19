@@ -1,0 +1,51 @@
+---
+
+- name: Install binary tasks
+  when: prometheus_install_source == 'binary' 
+  become: true
+  tags:
+    - prometheus_install
+    - prometheus
+  block:
+
+    - name: Create prometheus install directory
+      ansible.builtin.file:
+        path: "{{ prometheus_install_prefix }}/prometheus"
+        owner: root
+        group: root
+        mode: "0755"
+        state: directory
+
+    - name: Check prometheus install status
+      ansible.builtin.stat:
+        path: "{{ prometheus_install_prefix }}/prometheus/prometheus"
+      register: prometheus_stat
+
+    - name: Download prometheus archive 
+      when:
+        - not prometheus_stat.stat.exists
+        - not ansible_check_mode
+      block:
+        - name: Debug download URL
+          when: prometheus_debug | bool
+          ansible.builtin.debug:
+            msg: "Downloading Prometheus from {{ prometheus_install_url }}"
+        - name: Download prometheus archive 
+          ansible.builtin.get_url:
+            url: "{{ prometheus_install_url }}" 
+            dest: "/tmp/prometheus.tar.gz"
+            mode: "0644"
+        - name: Extract prometheus archive
+          ansible.builtin.unarchive:
+            src: "/tmp/prometheus.tar.gz"
+            dest: "{{ prometheus_install_prefix }}" 
+            remote_src: true
+            extra_opts: 
+              - "-C"
+              - "{{ prometheus_install_prefix }}/prometheus"
+              - --strip-components=1
+
+    - name: Remove prometheus archive 
+      ansible.builtin.file:
+        path: "/tmp/prometheus.tar.gz"
+        state: absent

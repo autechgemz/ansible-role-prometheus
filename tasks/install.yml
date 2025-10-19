@@ -1,0 +1,19 @@
+---
+
+- name: Validate prometheus_install_source
+  ansible.builtin.assert:
+    that:
+      - prometheus_install_source is defined
+      - prometheus_install_source in ['package', 'binary']
+    fail_msg: >-
+      prometheus_install_source must be 'package' or 'binary'
+      (got: {{ prometheus_install_source | default('<undefined>') }})
+    quiet: true
+
+- name: Install package tasks
+  when: prometheus_install_source == 'package' 
+  ansible.builtin.import_tasks: install/package.yml
+
+- name: Install binary tasks
+  when: prometheus_install_source == 'binary' 
+  ansible.builtin.import_tasks: install/binary.yml

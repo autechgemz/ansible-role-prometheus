@@ -1,0 +1,21 @@
+---
+
+prometheus_debug: false
+
+prometheus_install_source: 'package'
+
+prometheus_install_prefix: '/opt'
+
+prometheus_install_url: null
+
+prometheus_package_ensure: present
+
+prometheus_service_ensure: 'started'
+
+prometheus_service_enable: true
+
+prometheus_daemon_config_options: []
+
+prometheus_config_options: {}
+
+prometheus_systemd_options: {}

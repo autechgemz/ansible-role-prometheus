@@ -1,0 +1,23 @@
+---
+
+- name: Install package tasks
+  when: prometheus_install_source == 'package' 
+  become: true
+  tags:
+    - prometheus_install
+    - prometheus
+  block:
+    - name: Install prometheus package
+      when: ansible_os_family == 'Debian'
+      ansible.builtin.apt:
+        name: ["{{ item }}"]
+        update_cache: true
+        state: "{{ prometheus_package_ensure }}"
+      with_items: "{{ prometheus_package_name }}"
+
+    - name: Install prometheus package
+      when: ansible_os_family == 'RedHat'
+      ansible.builtin.yum:
+        name: ["{{ item }}"]
+        state: "{{ prometheus_package_ensure }}"
+      with_items: "{{ prometheus_package_name }}"

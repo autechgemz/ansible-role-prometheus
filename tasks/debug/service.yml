@@ -1,0 +1,18 @@
+---
+
+- name: Debug merged config
+  when: prometheus_debug | bool
+  ansible.builtin.debug:
+    msg: "prometheus_systemd_default_parsed: {{ prometheus_systemd_default_parsed }}"
+
+- name: Ensure the prometheus_systemd_options is a dictionary
+  ansible.builtin.assert:
+    that:
+      - prometheus_systemd_options is mapping
+    fail_msg: "prometheus_systemd_options must be a dictionary."
+    quiet: true
+
+- name: Debug merged config
+  when: prometheus_debug | bool
+  ansible.builtin.debug:
+    msg: "prometheus_systemd_options_merged: {{ prometheus_systemd_options_merged }}"

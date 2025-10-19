@@ -1,0 +1,11 @@
+---
+
+- name: Debug prometheus_daemon_config_merged
+  when: prometheus_debug
+  ansible.builtin.debug:
+    msg: "prometheus_daemon_config_merged: {{ prometheus_daemon_config_merged }}"
+
+- name: Debug merged config
+  when: prometheus_debug
+  ansible.builtin.debug:
+    msg: "prometheus_config_options_merged: {{ prometheus_config_options_merged }}"

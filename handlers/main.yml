@@ -1,0 +1,21 @@
+---
+
+- name: Reload systemd daemon
+  when: not ansible_check_mode
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart prometheus
+  when: not ansible_check_mode
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ prometheus_service_name }}"
+    state: restarted
+
+- name: Reload prometheus
+  when: not ansible_check_mode
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ prometheus_service_name }}"
+    state: reloaded
